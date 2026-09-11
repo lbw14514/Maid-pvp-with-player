@@ -28,15 +28,13 @@ public final class AttackPlayerConfig {
                 "While true, which players get attacked is decided by the maid attack list, see respectAttackList.",
                 "总开关：女仆是否被允许攻击玩家。",
                 "关闭时女仆保持车万女仆原版行为，永远不会把玩家当作攻击目标。",
-                "开启后具体攻击哪些玩家由女仆攻击列表决定，见 respectAttackList。")
-                .translation("maid_pvp_with_player.config.attackPlayer");
+                "开启后具体攻击哪些玩家由女仆攻击列表决定，见 respectAttackList。");
         ATTACK_PLAYER = builder.define("attackPlayer", DEFAULT_ATTACK_PLAYER);
 
         builder.comment(
                 "Whether maids are allowed to attack their own owner.",
                 "Only works while attackPlayer is true and the owner is a valid target.",
-                "女仆是否可以攻击自己的主人（仅在 attackPlayer 为 true 时生效）。")
-                .translation("maid_pvp_with_player.config.attackOwner");
+                "女仆是否可以攻击自己的主人（仅在 attackPlayer 为 true 时生效）。");
         ATTACK_OWNER = builder.define("attackOwner", DEFAULT_ATTACK_OWNER);
 
         builder.comment(
@@ -48,8 +46,7 @@ public final class AttackPlayerConfig {
                 "是否由女仆攻击列表中 minecraft:player 这一项决定该女仆攻击哪些玩家。",
                 "true（推荐）：只有被显式设为「敌对」或「中立」的玩家会被攻击；未配置该项的女仆按「友好」",
                 "      处理，永远不会攻击玩家。",
-                "false：忽略攻击列表，除主人外（attackOwner 为 false 时）所有玩家都会被攻击。")
-                .translation("maid_pvp_with_player.config.respectAttackList");
+                "false：忽略攻击列表，除主人外（attackOwner 为 false 时）所有玩家都会被攻击。");
         RESPECT_ATTACK_LIST = builder.define("respectAttackList", DEFAULT_RESPECT_ATTACK_LIST);
 
         SPEC = builder.build();
