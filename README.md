@@ -44,9 +44,9 @@
 ## 用法
 
 1. 把 `maid_pvp_with_player-<版本>.jar` 和车万女仆一起放进 `mods/`
-2. 开启总开关
-   * 单人游戏：「模组」→「Maid PvP with Player」→「配置」→ 把 `attackPlayer` 改成 `true`
-   * 服务器：改 `config/maid_pvp_with_player-server.toml`
+2. 开启总开关：改 `config/maid_pvp_with_player-server.toml`，把 `attackPlayer` 改成 `true`
+   * 单人游戏：该文件位于 `.minecraft/config/`，也可以在「模组」→「Maid PvP with Player」→「配置」界面里改
+   * 服务器：`<服务端目录>/config/`
 3. 指定哪只女仆参战：女仆 GUI → 攻击任务 → 配置 → 怪物列表输入 `minecraft:player` → 添加 → 点它切成「敌对」（见到就打）或「中立」（被挑衅才还手）
 
 不想逐只配置：把 `respectAttackList` 改成 `false`，除主人外所有玩家都会被攻击。
