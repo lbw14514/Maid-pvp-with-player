@@ -1,5 +1,5 @@
 {
-  "maid_pvp_with_player.configuration.attackPlayer": "Allow maids to attack players (master switch)",
-  "maid_pvp_with_player.configuration.attackOwner": "Allow maids to attack their owner",
-  "maid_pvp_with_player.configuration.respectAttackList": "Let the maid attack list pick targets (no entry = friendly)"
+  "maid_pvp_with_player.config.attackPlayer": "Allow maids to attack players (master switch)",
+  "maid_pvp_with_player.config.attackOwner": "Allow maids to attack their owner",
+  "maid_pvp_with_player.config.respectAttackList": "Let the maid attack list pick targets (no entry = friendly)"
 }

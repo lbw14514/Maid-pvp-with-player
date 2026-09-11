@@ -4,7 +4,7 @@
 
 一个 **Minecraft 1.21.1 / NeoForge** 的附属模组，提供「是否允许攻击玩家」总开关、「是否攻击主人」保护开关，并与女仆自带的攻击列表（敌对 / 中立 / 友好）完整联动。
 
-默认 **不生效**（`attackPlayer = false`），需要手动开启。
+默认 **不生效**（`attackPlayer = false`），需要手动开启：单人游戏可直接在游戏内「模组 → 配置」界面打开，服务器改 `config/maid_pvp_with_player-server.toml`。
 
 ---
 
@@ -38,7 +38,7 @@
 
 ### 方式一：精细控制（推荐）
 
-保持默认 `attackPlayer = true`、`respectAttackList = true`，然后对**每一只**女仆单独配置：
+先把 `attackPlayer` 改成 `true`（单人游戏可直接在「模组 → 配置」界面里改），并保持 `respectAttackList = true`，然后对**每一只**女仆单独配置：
 
 1. 打开女仆 GUI → 攻击任务 → 配置
 2. 在怪物列表输入框填入 `minecraft:player`，点击「添加」
@@ -79,7 +79,24 @@ attackOwner = false
 respectAttackList = true
 ```
 
-> 单人游戏该文件位于 `saves/<存档名>/serverconfig/`，专用服务器位于 `config/`。
+### 修改配置的两种方式
+
+**方式 A：游戏内 GUI**
+
+打开「模组」列表 → 选中 `Maid PvP with Player` → 点击「配置」，即可在界面里直接改动这三个开关（已附带中文名与说明）。
+
+NeoForge 的规则是：**SERVER 类型配置只有在自己本地开世界时可编辑**。
+连接他人服务器或他人开启的局域网世界时，该配置项在界面中会被禁用，只能由服主改服务端文件。
+
+**方式 B：直接改文件**
+
+| 环境 | 默认路径 |
+| --- | --- |
+| 专用服务端 | `<服务端目录>/config/maid_pvp_with_player-server.toml` |
+| 单人游戏 | `.minecraft/config/maid_pvp_with_player-server.toml` |
+| 只想覆盖某个存档 | 客户端 `.minecraft/saves/<存档名>/serverconfig/`；服务端 `<服务端目录>/world/serverconfig/` |
+
+NeoForge 默认开启了配置文件监听（`disableConfigWatcher = false`），改完保存后会自动重新加载，无需重启游戏。
 
 ## 工作原理
 
@@ -118,7 +135,30 @@ IAttackTask#findFirstValidAttackTarget(...)
 | 车万女仆 Touhou Little Maid | `>= 1.5.0`（开发时用 1.5.3-neoforge+mc1.21.1 验证） |
 | Java | 21 |
 
-仅影响服务端逻辑，客户端不安装也能进服（仍建议两端都装，便于模组列表一致）。
+### 服务端（必须安装）
+
+1. Minecraft 1.21.1 + NeoForge 21.1.x
+2. 车万女仆 Touhou Little Maid
+3. **本模组** `maid_pvp_with_player-1.0.0.jar`
+
+jar 放入 `<服务端目录>/mods/`，配置文件在 `<服务端目录>/config/maid_pvp_with_player-server.toml`。
+
+### 客户端
+
+**必须安装**：Minecraft 1.21.1 + NeoForge 21.1.x、车万女仆 Touhou Little Maid
+（女仆的实体、模型、音效、GUI 都在车万女仆里，客户端没有它无法正常显示和交互女仆）。
+
+**本模组在客户端是可选的**：
+
+* 女仆的目标判定（AI）运行在**逻辑服务端**，所以服务端装了本模组，逻辑就生效，
+  客户端装不装本模组，女仆一样会按配置攻击玩家。
+* 本模组不注册任何网络通道 / 注册表数据 / 枚举扩展，因此不会参与 NeoForge 的连接协商，
+  客户端缺失它**不会**导致「模组列表不匹配」而连不上服务器。
+* 装上本模组只是让两端模组列表一致，并且能在单人游戏的配置界面里看到这几个选项。
+
+### 单人游戏
+
+单人存档里逻辑服务端和客户端在同一个进程内，因此**必须安装本模组**才能生效。
 
 ## 构建
 
@@ -182,6 +222,16 @@ provoked) will engage players.
 
 Set `respectAttackList = false` to ignore the attack list and let every maid attack every player
 (except the owner while `attackOwner = false`).
+
+Both toggles default to `false`, so nothing changes until you turn them on. In singleplayer you can
+edit them from the in-game **Mods → Config** screen; on a dedicated server edit
+`config/maid_pvp_with_player-server.toml` (server configs cannot be edited from the screen while
+connected to someone else's server).
+
+The maid AI runs on the **logical server**, so a client can join without this mod installed and
+maids will still attack players. Touhou Little Maid itself is required on both sides. This mod
+registers no network channels, registry data or enum extensions, so it never causes a NeoForge
+connection mismatch.
 
 Licensed under MIT. This is an unofficial addon: it modifies the maid entity at runtime via Mixin
 and does not contain or redistribute any code or assets from Touhou Little Maid.
