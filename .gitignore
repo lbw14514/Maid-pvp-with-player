@@ -13,8 +13,9 @@ out/
 .settings/
 bin/
 run/
+.eclipse/
 
-# VS Code (launch.json contains machine specific absolute paths)
+# Generated launch configs (contain machine specific absolute paths)
 .vscode/
 
 # OS
