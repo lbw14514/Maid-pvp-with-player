@@ -34,6 +34,27 @@
 * 主人攻击过该玩家
 * 该玩家攻击过女仆
 
+### 一句话总结：怎样才会真的生效
+
+女仆要攻击某个玩家，必须**同时**满足：
+
+| # | 条件 | 配置位置 |
+| --- | --- | --- |
+| 1 | `attackPlayer = true` | 全局（服务端配置） |
+| 2 | 该女仆的攻击列表里有 `minecraft:player`，且设为「敌对」或「中立」 | **每只女仆各自的 GUI** |
+| 3 | 若目标就是主人，还需 `attackOwner = true` | 全局（服务端配置） |
+
+> 未满足第 2 条的女仆，行为与**车万女仆原版完全一致**（原版本身就把玩家排除在攻击目标之外），
+> 也就是「没有单独配置 = 不生效」。
+>
+> 这是刻意设计的**自动友好模式**：装上本模组不会让全服女仆突然围攻所有玩家。
+>
+> 攻击列表是**逐只女仆独立存储**的数据（挂在 `EntityMaid` 实例上），不是全局配置，
+> 所以「有没有配置」是按每只女仆分别判断的，你可以只让某几只女仆参战。
+>
+> 想跳过第 2 条（不逐只配置）：把 `respectAttackList` 设为 `false`，
+> 此时除主人外所有玩家都会被攻击。
+
 ## 用法
 
 ### 方式一：精细控制（推荐）
@@ -126,14 +147,39 @@ IAttackTask#findFirstValidAttackTarget(...)
 2. **攻击列表用反射读取**
    车万女仆内部类若改名，只会退化成「忽略攻击列表」并打印一条 warn，而不是让游戏崩溃。
 
-## 环境要求
+## 环境要求与支持范围
 
-| 依赖 | 版本 |
+### 支持矩阵
+
+| 组件 | 支持范围 | 判断依据 |
+| --- | --- | --- |
+| Minecraft | **1.21.1** | 模组 jar 按 MC 版本编译，`minecraft_version_range = [1.21.1,1.21.2)` |
+| NeoForge | **21.1.x** | 与 MC 1.21.1 对应的版本线（开发用 21.1.21） |
+| 车万女仆 Touhou Little Maid | **>= 1.1.13** | 1.1.13 是「攻击列表」功能落地后，TLM 在 1.21.1 上的首个发布版 |
+| Java | **21** | MC 1.21.1 的硬性要求 |
+
+### 为什么 Minecraft 版本不能放宽
+
+* Minecraft 模组 jar 是**针对具体 MC 版本编译**的：类名、方法名、NeoForge API 在不同 MC 版本之间都会变。
+* 单纯放宽 `minecraft_version_range` 只会让 NeoForge 允许它在不兼容的版本上加载，
+  之后在 Mixin 注入或方法调用时崩溃 —— 比直接拒绝加载更糟。
+* 要覆盖其它 MC 版本，唯一正确的做法是**为每个 MC 版本单独构建一个 jar**
+  （例如再开一个 1.21.4 的构建目标）。本仓库目前只提供 1.21.1 的构建。
+
+### 为什么车万女仆的下限是 1.1.13
+
+本模组依赖 TLM 的这几个内部结构，在实测的 **1.1.13** 与 **1.5.3** 上完全一致：
+
+| 依赖 | 用途 |
 | --- | --- |
-| Minecraft | 1.21.1 |
-| NeoForge | 21.1.x（开发用 21.1.21） |
-| 车万女仆 Touhou Little Maid | `>= 1.5.0`（开发时用 1.5.3-neoforge+mc1.21.1 验证） |
-| Java | 21 |
+| `EntityMaid#canAttack(LivingEntity)` | Mixin 注入点（必须确实是 `EntityMaid` 上的覆写方法，否则注入失败会崩溃） |
+| `EntityMaid#getData(TaskDataKey)` / `setData` | 读 / 写女仆的攻击列表 |
+| `InitTaskData.ATTACK_LIST`（`TaskDataKey<AttackListData>`） | 攻击列表数据的键 |
+| `AttackListData#attackGroups()` → `Map<ResourceLocation, MonsterType>` | 实际的敌对 / 中立 / 友好表 |
+| `MonsterType.{FRIENDLY,NEUTRAL,HOSTILE}` | 枚举常量名 |
+
+`AttackListData` 于 2024-10-28 加入 TLM，因此 1.1.13（2024-11-12 发布）是第一个可用的 1.21.1 版本；
+更早的 1.1.12 系列尚无攻击列表，装了也无法工作。
 
 ### 服务端（必须安装）
 
@@ -182,7 +228,15 @@ gradlew.bat runServer
 ## 已验证
 
 * `gradlew build` 编译打包通过
-* 搭配真实的 **Touhou Little Maid 1.5.3-neoforge+mc1.21.1** 启动开发服务器成功，Mixin 注入确认生效：
+* 兼容性边界实测：分别在支持范围**最旧**与**最新**的车万女仆版本上启动开发服务器，
+  两次都成功注入且没有任何报错：
+
+| 车万女仆版本 | 注入结果 | 服务器启动 |
+| --- | --- | --- |
+| **1.1.13**（最旧支持版本） | `Mixing EntityMaidCanAttackMixin from maid_pvp_with_player.mixins.json into ...EntityMaid` | `Done (5.894s)!` |
+| **1.5.3**（当前最新） | 同上 | `Done (4.794s)!` |
+
+  1.5.3 的完整日志片段：
 
 ```
 [mixin/]: Selecting config maid_pvp_with_player.mixins.json
@@ -214,11 +268,19 @@ gradlew.bat runServer
 **Maid PvP with Player** is a Minecraft 1.21.1 / NeoForge addon for
 [Touhou Little Maid](https://modrinth.com/mod/touhou-little-maid) that lets maids fight players.
 
+Requirements: Minecraft **1.21.1**, NeoForge **21.1.x**, Touhou Little Maid **1.1.13+**, Java 21.
+The jar is compiled for 1.21.1 only - other Minecraft versions need their own build, since mod jars
+cannot be shared across Minecraft versions.
+
 It adds a master toggle (`attackPlayer`, off by default), an owner protection toggle
 (`attackOwner`), and integrates with the maid attack list: a maid whose attack list has **no**
 `minecraft:player` entry is treated as **friendly** and will not attack players. Only maids that
 explicitly list `minecraft:player` as *hostile* (always attack) or *neutral* (fight back when
 provoked) will engage players.
+
+In short, all three conditions must hold: `attackPlayer = true`, the maid has `minecraft:player`
+in its own attack list set to *hostile* or *neutral*, and for the owner `attackOwner = true`.
+A maid without that entry behaves exactly like vanilla Touhou Little Maid.
 
 Set `respectAttackList = false` to ignore the attack list and let every maid attack every player
 (except the owner while `attackOwner = false`).
