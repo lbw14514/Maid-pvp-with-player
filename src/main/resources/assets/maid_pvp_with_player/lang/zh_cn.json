@@ -1,0 +1,5 @@
+{
+  "maid_pvp_with_player.configuration.attackPlayer": "允许女仆攻击玩家（总开关）",
+  "maid_pvp_with_player.configuration.attackOwner": "允许女仆攻击主人",
+  "maid_pvp_with_player.configuration.respectAttackList": "由女仆攻击列表决定攻击目标（未配置=友好）"
+}

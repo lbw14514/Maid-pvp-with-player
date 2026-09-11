@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+bin/
+run/
+
+# VS Code (launch.json contains machine specific absolute paths)
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
