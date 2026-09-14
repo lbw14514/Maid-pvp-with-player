@@ -2,10 +2,11 @@ package com.wuyulbw.maidpvpwithplayer.rule;
 
 import com.wuyulbw.maidpvpwithplayer.compat.AttackListType;
 import com.wuyulbw.maidpvpwithplayer.compat.MaidAttackList;
-import com.wuyulbw.maidpvpwithplayer.config.AttackPlayerConfig;
+import com.wuyulbw.maidpvpwithplayer.gamerule.MaidPvpGameRules;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,13 +31,14 @@ public final class MaidAttackRules {
         if (!(maidObject instanceof TamableAnimal maid)) {
             return null;
         }
+        Level level = maid.level();
         // The master switch is off, keep vanilla / Touhou Little Maid behaviour.
-        if (!AttackPlayerConfig.attackPlayer()) {
+        if (!MaidPvpGameRules.attackPlayer(level)) {
             return null;
         }
 
         AttackListType attackListType = null;
-        if (AttackPlayerConfig.respectAttackList()) {
+        if (MaidPvpGameRules.respectAttackList(level)) {
             attackListType = MaidAttackList.getAttackListType(maid, MaidAttackList.playerId());
             // "Automatic friendly" mode: a maid that has no 'minecraft:player' entry in its attack
             // list, or that has it set to "friendly", never attacks players.
@@ -46,7 +48,7 @@ public final class MaidAttackRules {
         }
 
         // The owner protection wins over everything else.
-        if (maid.isOwnedBy(player) && !AttackPlayerConfig.attackOwner()) {
+        if (maid.isOwnedBy(player) && !MaidPvpGameRules.attackOwner(level)) {
             return false;
         }
 
